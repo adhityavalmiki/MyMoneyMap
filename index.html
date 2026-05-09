@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyMoneyMap | Track Your Money Smarter</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <div class="loader"><div class="loader-mark"><i class="fa-solid fa-chart-pie"></i></div></div>
+  <nav class="landing-nav">
+    <a class="brand" href="index.html"><span class="brand-icon"><i class="fa-solid fa-map"></i></span> MyMoneyMap</a>
+    <div class="landing-links">
+      <a href="#features">Features</a><a href="#stats">Stats</a><a href="#testimonials">Stories</a><a href="dashboard.html">Dashboard</a>
+    </div>
+    <a class="btn" href="register.html">Get Started</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="fade-in">
+        <span class="eyebrow">Premium personal finance dashboard</span>
+        <h1>Track Your Money Smarter</h1>
+        <p>Control your income, expenses, subscriptions, stocks, EMI plans, and savings goals from one elegant fintech workspace built with HTML, CSS, and JavaScript.</p>
+        <div class="hero-actions">
+          <a class="btn" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i> Open Dashboard</a>
+          <a class="btn ghost" href="login.html">Login</a>
+        </div>
+      </div>
+      <div class="preview-card fade-in delay-1">
+        <div class="float-card left"><small>Saved this month</small><h3>₹0</h3></div>
+        <div class="float-card right"><small>Portfolio gain</small><h3 class="positive">0%</h3></div>
+        <div class="preview-top">
+          <div><small>Total Balance</small><div class="preview-balance">₹0</div></div>
+          <a class="btn green" href="transactions.html">Add Transaction</a>
+        </div>
+        <div style="height:320px"><canvas id="landingChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-head"><h2>Everything your money needs.</h2><p>Real-world dashboard modules with smooth interactions, LocalStorage persistence, responsive charts, and premium finance UI patterns.</p></div>
+    <div class="feature-grid">
+      <div class="feature"><i class="fa-solid fa-wallet"></i><h3>Expense Manager</h3><p>Add, edit, filter, sort, search, and export transactions.</p></div>
+      <div class="feature"><i class="fa-solid fa-chart-line"></i><h3>Portfolio Tracker</h3><p>Track holdings, investment value, gains, losses, and allocation.</p></div>
+      <div class="feature"><i class="fa-solid fa-calendar-check"></i><h3>Subscriptions</h3><p>Monitor recurring payments and billing pressure.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works">
+    <div class="section-head">
+      <h2>How users build their financial control center.</h2>
+      <p>MyMoneyMap starts at zero, then becomes smarter as users add their own income, expenses, subscriptions, loan details, and investment holdings.</p>
+    </div>
+    <div class="flow-grid">
+      <div class="flow-card">
+        <div class="flow-step">1</div>
+        <h3>Create account</h3>
+        <p>Users sign up, log in, and set profile preferences such as currency and notifications.</p>
+      </div>
+      <div class="flow-card">
+        <div class="flow-step">2</div>
+        <h3>Add transactions</h3>
+        <p>Salary, rent, groceries, shopping, bills, fuel, and other activity are saved locally.</p>
+      </div>
+      <div class="flow-card">
+        <div class="flow-step">3</div>
+        <h3>Watch charts update</h3>
+        <p>The dashboard recalculates balance, income, expenses, savings, and category charts instantly.</p>
+      </div>
+      <div class="flow-card">
+        <div class="flow-step">4</div>
+        <h3>Plan smarter</h3>
+        <p>Users monitor subscriptions, track stocks with live Finnhub prices, and calculate loan EMI.</p>
+      </div>
+    </div>
+    <div class="data-flow">
+      <div class="data-node">User Action</div>
+      <div class="data-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="data-node">JavaScript Processes Data</div>
+      <div class="data-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="data-node">LocalStorage Saves It</div>
+      <div class="data-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="data-node">Charts Update Instantly</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Made for real money habits.</h2>
+      <p>Students, salaried employees, freelancers, investors, and families can all use the same dashboard in different ways.</p>
+    </div>
+    <div class="audience-grid">
+      <div class="audience-card"><i class="fa-solid fa-graduation-cap"></i><h3>Students</h3><p>Track allowance, food spending, and savings goals.</p></div>
+      <div class="audience-card"><i class="fa-solid fa-briefcase"></i><h3>Employees</h3><p>Manage salary, bills, subscriptions, and investments.</p></div>
+      <div class="audience-card"><i class="fa-solid fa-laptop-code"></i><h3>Freelancers</h3><p>Track multiple income streams and irregular payments.</p></div>
+      <div class="audience-card"><i class="fa-solid fa-chart-line"></i><h3>Investors</h3><p>Monitor holdings, live prices, profit, and loss.</p></div>
+      <div class="audience-card"><i class="fa-solid fa-house-user"></i><h3>Families</h3><p>Organize household expenses and recurring bills.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Problems MyMoneyMap solves.</h2>
+      <p>The app turns scattered financial activity into clear reports, warnings, and better decisions.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="problem-card"><i class="fa-solid fa-magnifying-glass-chart"></i><h3>Where did money go?</h3><p>Expense analytics and category charts reveal spending patterns.</p></div>
+      <div class="problem-card"><i class="fa-solid fa-repeat"></i><h3>Hidden subscriptions</h3><p>The subscription manager shows monthly and yearly recurring cost.</p></div>
+      <div class="problem-card"><i class="fa-solid fa-calculator"></i><h3>Loan confusion</h3><p>The EMI calculator breaks down repayment, interest, and amortization.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="stats">
+    <div class="stats-grid">
+      <div class="stat"><strong data-counter="0" data-prefix="₹">0</strong><p>Your tracked balance starts here</p></div>
+      <div class="stat"><strong data-counter="0" data-suffix="+">0</strong><p>Your monthly records</p></div>
+      <div class="stat"><strong data-counter="0" data-suffix="%">0</strong><p>Your savings improvement</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="testimonials">
+    <div class="section-head"><h2>Built to feel like a startup MVP.</h2></div>
+    <div class="testimonial-grid">
+      <div class="testimonial"><p>“The dashboard gives every finance habit a place, without feeling cluttered.”</p><strong>Riya, Product Designer</strong></div>
+      <div class="testimonial"><p>“Transactions, EMI, and subscriptions are fast enough for daily use.”</p><strong>Arjun, Founder</strong></div>
+      <div class="testimonial"><p>“A polished static portfolio project that still behaves like a real app.”</p><strong>Meera, Developer</strong></div>
+    </div>
+  </section>
+
+  <footer class="footer"><div class="footer-inner"><strong>MyMoneyMap</strong><span>Modern finance clarity, built with vanilla web tech.</span></div></footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/app.js"></script>
+  <script>document.addEventListener("DOMContentLoaded",()=>makeLineChart("landingChart",["Jan","Feb","Mar","Apr","May","Jun"],[0,0,0,0,0,0],[0,0,0,0,0,0]));</script>
+</body>
+</html>
