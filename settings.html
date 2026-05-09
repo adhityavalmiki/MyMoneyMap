@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | MyMoneyMap</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <div class="loader"><div class="loader-mark"><i class="fa-solid fa-gear"></i></div></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html"><span class="brand-icon"><i class="fa-solid fa-map"></i></span> MyMoneyMap</a>
+      <nav class="sidebar-menu">
+        <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge"></i>Dashboard</a>
+        <a class="nav-item" href="transactions.html"><i class="fa-solid fa-receipt"></i>Expenses</a>
+        <a class="nav-item" href="subscriptions.html"><i class="fa-solid fa-calendar-days"></i>Subscriptions</a>
+        <a class="nav-item" href="portfolio.html"><i class="fa-solid fa-arrow-trend-up"></i>Portfolio</a>
+        <a class="nav-item" href="emi.html"><i class="fa-solid fa-calculator"></i>EMI Calculator</a>
+        <a class="nav-item" href="settings.html"><i class="fa-solid fa-gear"></i>Settings</a>
+      </nav>
+      <div class="sidebar-profile"><div class="avatar">A</div><div><strong>Adhitya</strong><br><small>Settings</small></div></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-toggle" data-sidebar-toggle><i class="fa-solid fa-bars"></i></button>
+        <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="Search settings"></div>
+        <div class="top-actions"><button class="icon-btn" data-theme-toggle><i class="fa-solid fa-moon"></i></button></div>
+      </header>
+
+      <section class="settings-hero">
+        <div class="settings-avatar" data-settings-initial>A</div>
+        <div>
+          <h1 style="margin:0">Profile & Settings</h1>
+          <p style="margin:8px 0 0;color:#dbeafe">Customize your profile, currency, goals, notifications, and dashboard behavior.</p>
+        </div>
+      </section>
+
+      <section class="grid-2" style="margin-top:18px">
+        <div class="card">
+          <div class="settings-card-title"><i class="fa-solid fa-user"></i><h3>Profile Details</h3></div>
+          <form class="form-grid" id="settingsForm">
+            <input class="field" id="settingName" placeholder="Full name" required>
+            <input class="field" id="settingEmail" type="email" placeholder="Email" required>
+            <div class="two-col">
+              <select class="select" id="settingCurrency">
+                <option value="INR">INR - Indian Rupee</option>
+                <option value="USD">USD - US Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - British Pound</option>
+              </select>
+              <select class="select" id="settingLanguage">
+                <option>English</option>
+                <option>Hindi</option>
+              </select>
+            </div>
+            <button class="btn" type="submit"><i class="fa-solid fa-floppy-disk"></i>Save Profile</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="settings-card-title"><i class="fa-solid fa-sliders"></i><h3>App Preferences</h3></div>
+          <div class="mini-list">
+            <button class="btn light" data-theme-toggle><i class="fa-solid fa-circle-half-stroke"></i>Toggle Dark / Light Mode</button>
+            <div class="settings-row"><span><strong>Budget alerts</strong><br><small>Warn when expenses cross budget.</small></span><label class="switch"><input id="notifyBudget" type="checkbox"><span></span></label></div>
+            <div class="settings-row"><span><strong>Subscription reminders</strong><br><small>Notify before recurring bills.</small></span><label class="switch"><input id="notifySubscriptions" type="checkbox"><span></span></label></div>
+            <div class="settings-row"><span><strong>Portfolio movement</strong><br><small>Track notable stock changes.</small></span><label class="switch"><input id="notifyPortfolio" type="checkbox"><span></span></label></div>
+            <div class="settings-row"><span><strong>Weekly report</strong><br><small>Summarize your money habits.</small></span><label class="switch"><input id="notifyWeekly" type="checkbox"><span></span></label></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid-3" style="margin-top:18px">
+        <div class="card">
+          <div class="settings-card-title"><i class="fa-solid fa-bullseye"></i><h3>Monthly Budget</h3></div>
+          <input class="field" id="monthlyBudget" type="number" min="0" placeholder="0">
+          <p id="budgetPreview" class="positive">Budget: 0</p>
+        </div>
+        <div class="card">
+          <div class="settings-card-title"><i class="fa-solid fa-piggy-bank"></i><h3>Savings Goal</h3></div>
+          <input class="field" id="savingsGoal" type="number" min="0" placeholder="0">
+          <p id="goalPreview" class="positive">Goal: 0</p>
+        </div>
+        <div class="card">
+          <div class="settings-card-title"><i class="fa-solid fa-shield-halved"></i><h3>Data Storage</h3></div>
+          <p>Your finance data is stored in this browser using LocalStorage.</p>
+          <button class="btn light" id="downloadSettings"><i class="fa-solid fa-download"></i>Export Settings</button>
+        </div>
+      </section>
+
+      <section class="card danger-zone" style="margin-top:18px">
+        <div class="settings-card-title"><i class="fa-solid fa-triangle-exclamation"></i><h3>Danger Zone</h3></div>
+        <p>Reset transactions, stocks, subscriptions, and settings on this browser. This cannot be undone.</p>
+        <button class="btn danger" id="resetAllData"><i class="fa-solid fa-trash"></i>Reset All Data</button>
+      </section>
+    </main>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>
