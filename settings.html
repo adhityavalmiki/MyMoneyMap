@@ -20,7 +20,7 @@
         <a class="nav-item" href="emi.html"><i class="fa-solid fa-calculator"></i>EMI Calculator</a>
         <a class="nav-item" href="settings.html"><i class="fa-solid fa-gear"></i>Settings</a>
       </nav>
-      <div class="sidebar-profile"><div class="avatar">A</div><div><strong>Adhitya</strong><br><small>Settings</small></div></div>
+      <div class="sidebar-profile"><div class="avatar">U</div><div><strong>User</strong><br><small>Settings</small></div></div>
     </aside>
 
     <main class="main">
@@ -43,7 +43,7 @@
           <div class="settings-card-title"><i class="fa-solid fa-user"></i><h3>Profile Details</h3></div>
           <form class="form-grid" id="settingsForm">
             <input class="field" id="settingName" placeholder="Full name" required>
-            <input class="field" id="settingEmail" type="email" placeholder="Email" required>
+            <input class="field" id="settingEmail" type="email" placeholder="Email" readonly title="Email is used as your local account id">
             <div class="two-col">
               <select class="select" id="settingCurrency">
                 <option value="INR">INR - Indian Rupee</option>
@@ -87,12 +87,13 @@
           <div class="settings-card-title"><i class="fa-solid fa-shield-halved"></i><h3>Data Storage</h3></div>
           <p>Your finance data is stored in this browser using LocalStorage.</p>
           <button class="btn light" id="downloadSettings"><i class="fa-solid fa-download"></i>Export Settings</button>
+          <button class="btn light" id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
         </div>
       </section>
 
       <section class="card danger-zone" style="margin-top:18px">
         <div class="settings-card-title"><i class="fa-solid fa-triangle-exclamation"></i><h3>Danger Zone</h3></div>
-        <p>Reset transactions, stocks, subscriptions, and settings on this browser. This cannot be undone.</p>
+        <p>Reset transactions, stocks, subscriptions, and settings for the current logged-in user on this browser. This cannot be undone.</p>
         <button class="btn danger" id="resetAllData"><i class="fa-solid fa-trash"></i>Reset All Data</button>
       </section>
     </main>

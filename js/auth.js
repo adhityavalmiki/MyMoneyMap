@@ -4,11 +4,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const password = document.getElementById("regPassword");
   const confirm = document.getElementById("confirmPassword");
   const strength = document.querySelector(".strength span");
+  const params = new URLSearchParams(location.search);
+  const nextPage = params.get("next") || "dashboard.html";
+
+  function getUsers() {
+    return JSON.parse(localStorage.getItem("mmm-users") || "[]");
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem("mmm-users", JSON.stringify(users));
+  }
+
+  function startSession(user) {
+    localStorage.setItem("mmm-current-user", JSON.stringify({
+      name: user.name,
+      email: user.email
+    }));
+  }
 
   login?.addEventListener("submit", (e) => {
     e.preventDefault();
+    const email = normalizeEmail(document.getElementById("loginEmail").value);
+    const passwordValue = document.getElementById("loginPassword").value;
+    const user = getUsers().find((item) => normalizeEmail(item.email) === email && item.password === passwordValue);
+    if (!user) {
+      toast("Invalid email or password. Create an account first.");
+      return;
+    }
+    startSession(user);
     toast("Logged in successfully");
-    setTimeout(() => location.href = "dashboard.html", 650);
+    setTimeout(() => location.href = nextPage, 650);
   });
 
   password?.addEventListener("input", () => {
@@ -25,6 +50,27 @@ document.addEventListener("DOMContentLoaded", () => {
   register?.addEventListener("submit", (e) => {
     e.preventDefault();
     if (password.value !== confirm.value) return toast("Passwords do not match");
+    const users = getUsers();
+    const user = {
+      name: document.getElementById("regName").value.trim(),
+      email: normalizeEmail(document.getElementById("regEmail").value),
+      currency: document.getElementById("regCurrency").value,
+      password: password.value
+    };
+    if (users.some((item) => normalizeEmail(item.email) === user.email)) {
+      toast("An account with this email already exists");
+      return;
+    }
+    users.push(user);
+    saveUsers(users);
+    startSession(user);
+    const settingsKey = `mmm:${user.email}:settings`;
+    localStorage.setItem(settingsKey, JSON.stringify({
+      ...defaultSettings,
+      name: user.name,
+      email: user.email,
+      currency: user.currency
+    }));
     document.querySelector(".success-pop").classList.add("show");
     toast("Account created");
     setTimeout(() => location.href = "dashboard.html", 900);

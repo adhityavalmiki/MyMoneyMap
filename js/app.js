@@ -1,6 +1,6 @@
 const defaultSettings = {
-  name: "Adhitya Valmiki",
-  email: "adhitya@mymoneymap.dev",
+  name: "User",
+  email: "",
   currency: "INR",
   monthlyBudget: 0,
   savingsGoal: 0,
@@ -15,6 +15,29 @@ const defaultSettings = {
 const seedTransactions = [];
 const seedStocks = [];
 const seedSubscriptions = [];
+const protectedPages = ["dashboard.html", "transactions.html", "portfolio.html", "subscriptions.html", "emi.html", "settings.html"];
+const scopedKeys = ["mmm-transactions", "mmm-stocks", "mmm-subscriptions", "mmm-settings"];
+
+function currentUser() {
+  return JSON.parse(localStorage.getItem("mmm-current-user") || "null");
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function storageKey(key) {
+  const user = currentUser();
+  if (!user || !scopedKeys.includes(key)) return key;
+  return `mmm:${normalizeEmail(user.email)}:${key.replace("mmm-", "")}`;
+}
+
+function requireAuth() {
+  const page = location.pathname.split("/").pop() || "index.html";
+  if (protectedPages.includes(page) && !currentUser()) {
+    location.href = `login.html?next=${encodeURIComponent(page)}`;
+  }
+}
 
 function removeOldDemoData() {
   const demoSets = {
@@ -31,18 +54,25 @@ function removeOldDemoData() {
 }
 
 function getStore(key, fallback) {
-  const existing = localStorage.getItem(key);
+  const finalKey = storageKey(key);
+  const existing = localStorage.getItem(finalKey);
   if (existing) return JSON.parse(existing);
-  localStorage.setItem(key, JSON.stringify(fallback));
+  localStorage.setItem(finalKey, JSON.stringify(fallback));
   return fallback;
 }
 
 function setStore(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  localStorage.setItem(storageKey(key), JSON.stringify(value));
 }
 
 function getSettings() {
-  return { ...defaultSettings, ...getStore("mmm-settings", defaultSettings) };
+  const user = currentUser();
+  const base = {
+    ...defaultSettings,
+    name: user?.name || defaultSettings.name,
+    email: user?.email || defaultSettings.email
+  };
+  return { ...base, ...getStore("mmm-settings", base) };
 }
 
 function formatMoney(value, currency = getSettings().currency) {
@@ -206,6 +236,7 @@ function makeBarChart(id, labels, data) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  requireAuth();
   removeOldDemoData();
   initLoader();
   initTheme();

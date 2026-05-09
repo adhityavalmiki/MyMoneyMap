@@ -46,7 +46,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("settingsForm").addEventListener("submit", (event) => {
     event.preventDefault();
-    setStore("mmm-settings", readSettingsForm());
+    const settings = readSettingsForm();
+    setStore("mmm-settings", settings);
+    const user = currentUser();
+    if (user) {
+      const users = JSON.parse(localStorage.getItem("mmm-users") || "[]");
+      const updatedUsers = users.map((item) => normalizeEmail(item.email) === normalizeEmail(user.email) ? { ...item, name: settings.name, currency: settings.currency } : item);
+      localStorage.setItem("mmm-users", JSON.stringify(updatedUsers));
+      localStorage.setItem("mmm-current-user", JSON.stringify({ name: settings.name, email: user.email }));
+    }
     applyProfile();
     updateSettingsPreview();
     toast("Settings saved");
@@ -69,10 +77,16 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   });
 
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("mmm-current-user");
+    toast("Logged out");
+    setTimeout(() => location.href = "login.html", 500);
+  });
+
   document.getElementById("resetAllData").addEventListener("click", () => {
-    if (!confirm("Reset all MyMoneyMap data on this browser?")) return;
-    ["mmm-transactions", "mmm-stocks", "mmm-subscriptions", "mmm-settings"].forEach((key) => localStorage.removeItem(key));
-    toast("All local data reset");
+    if (!confirm("Reset all MyMoneyMap data for this logged-in user?")) return;
+    ["mmm-transactions", "mmm-stocks", "mmm-subscriptions", "mmm-settings"].forEach((key) => localStorage.removeItem(storageKey(key)));
+    toast("Your local data was reset");
     setTimeout(() => location.href = "dashboard.html", 700);
   });
 });
