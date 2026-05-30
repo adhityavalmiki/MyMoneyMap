@@ -1,14 +1,5 @@
-async function loadDashboardTransactions() {
-  if (!hasSupabase()) return getStore("mmm-transactions", seedTransactions);
-  const { data, error } = await db.from("transactions").select("*").order("date", { ascending: false });
-  if (error) {
-    toast(error.message);
-    return [];
-  }
-  return data || [];
-}
-
-function renderDashboard(tx) {
+document.addEventListener("DOMContentLoaded", () => {
+  const tx = getStore("mmm-transactions", seedTransactions);
   const income = tx.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
   const expenses = tx.filter(t => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
   const savings = income - expenses;
@@ -50,9 +41,4 @@ function renderDashboard(tx) {
       </div>
     `).join("") : `<div class="mini-row"><span>No transactions yet. Add your first income or expense.</span></div>`;
   }
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-  const tx = await loadDashboardTransactions();
-  renderDashboard(tx);
 });

@@ -1,9 +1,153 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Portfolio | MyMoneyMap</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head>
-<body><div class="loader"><div class="loader-mark"><i class="fa-solid fa-arrow-trend-up"></i></div></div><div class="app-shell">
-<aside class="sidebar"><a class="brand" href="dashboard.html"><span class="brand-icon"><i class="fa-solid fa-map"></i></span> MyMoneyMap</a><nav class="sidebar-menu"><a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge"></i>Dashboard</a><a class="nav-item" href="transactions.html"><i class="fa-solid fa-receipt"></i>Expenses</a><a class="nav-item" href="subscriptions.html"><i class="fa-solid fa-calendar-days"></i>Subscriptions</a><a class="nav-item" href="portfolio.html"><i class="fa-solid fa-arrow-trend-up"></i>Portfolio</a><a class="nav-item" href="emi.html"><i class="fa-solid fa-calculator"></i>EMI Calculator</a><a class="nav-item" href="settings.html"><i class="fa-solid fa-gear"></i>Settings</a></nav><div class="sidebar-profile"><div class="avatar">U</div><div><strong>User</strong><br><small>Investor</small></div></div></aside>
-<main class="main"><header class="topbar"><button class="mobile-toggle" data-sidebar-toggle><i class="fa-solid fa-bars"></i></button><div class="search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="Search holdings"></div><div class="top-actions"><button class="icon-btn" data-theme-toggle><i class="fa-solid fa-moon"></i></button></div></header>
-<div class="page-title"><h1>Stock Portfolio</h1><p>Track quantity, purchase price, current price, total value, allocation, and profit/loss.</p></div>
-<section class="grid-3"><div class="card"><h3>Portfolio Value</h3><strong id="portfolioValue">₹0</strong></div><div class="card"><h3>Profit/Loss</h3><strong class="positive" id="portfolioPL">0%</strong></div><div class="card"><h3>Holdings</h3><strong>Add your first stock</strong></div></section>
-<section class="grid-2" style="margin-top:18px"><div class="card"><h3>Add Stock</h3><p id="portfolioStatus">Enter a symbol like AAPL, MSFT, TSLA, or RELIANCE.NS. Finnhub will fetch the live current price.</p><form id="stockForm" class="form-grid"><input class="field" id="stockSymbol" placeholder="Symbol" required><div class="two-col"><input class="field" id="stockQty" type="number" placeholder="Quantity" required><input class="field" id="stockBuy" type="number" placeholder="Purchase price" required></div><input class="field" id="stockCurrent" type="number" placeholder="Current price fallback, optional"><button class="btn">Add Stock</button><button class="btn light" type="button" id="refreshPrices"><i class="fa-solid fa-rotate"></i>Refresh Live Prices</button></form></div><div class="card chart-card"><h3>Allocation</h3><canvas id="portfolioChart"></canvas></div></section>
-<section class="grid-4" id="stockGrid" style="margin-top:18px"></section><div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>Symbol</th><th>Qty</th><th>Purchase</th><th>Current</th><th>P/L</th></tr></thead><tbody id="stockRows"></tbody></table></div>
-</main></div><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="js/app.js"></script><script src="js/portfolio.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio | MyMoneyMap</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <div class="loader"><div class="loader-mark"><i class="fa-solid fa-arrow-trend-up"></i></div></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html"><span class="brand-icon"><i class="fa-solid fa-map"></i></span> MyMoneyMap</a>
+      <nav class="sidebar-menu">
+        <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge"></i>Dashboard</a>
+        <a class="nav-item" href="transactions.html"><i class="fa-solid fa-receipt"></i>Expenses</a>
+        <a class="nav-item" href="subscriptions.html"><i class="fa-solid fa-calendar-days"></i>Subscriptions</a>
+        <a class="nav-item" href="portfolio.html"><i class="fa-solid fa-arrow-trend-up"></i>Portfolio</a>
+        <a class="nav-item" href="emi.html"><i class="fa-solid fa-calculator"></i>EMI Calculator</a>
+        <a class="nav-item" href="settings.html"><i class="fa-solid fa-gear"></i>Settings</a>
+      </nav>
+      <div class="sidebar-profile"><div class="avatar">U</div><div><strong>User</strong><br><small>Investor</small></div></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-toggle" data-sidebar-toggle><i class="fa-solid fa-bars"></i></button>
+        <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="Search holdings"></div>
+        <div class="top-actions"><button class="icon-btn" data-theme-toggle><i class="fa-solid fa-moon"></i></button></div>
+      </header>
+
+      <div class="page-title">
+        <h1>Portfolio Tracker</h1>
+        <p>A brokerage-style portfolio account for stocks, funds, futures, forex, crypto, indices, bonds, economy instruments, options, and commodities.</p>
+      </div>
+
+      <section class="portfolio-hero">
+        <div class="card portfolio-summary">
+          <p>Total Portfolio Value</p>
+          <h2 id="portfolioValue">0</h2>
+          <div class="portfolio-meta">
+            <span class="portfolio-pill"><i class="fa-solid fa-chart-line"></i><span id="portfolioPL">0%</span> total return</span>
+            <span class="portfolio-pill"><i class="fa-solid fa-layer-group"></i><span id="holdingCount">0</span> holdings</span>
+            <span class="portfolio-pill"><i class="fa-solid fa-clock"></i><span id="lastPriceUpdate">Not refreshed</span></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Portfolio Snapshot</h3>
+          <div class="mini-list">
+            <div class="mini-row"><span>Invested Capital</span><strong id="investedValue">0</strong></div>
+            <div class="mini-row"><span>Unrealized P/L</span><strong id="unrealizedPL">0</strong></div>
+            <div class="mini-row"><span>Best Performer</span><strong id="bestPerformer">None</strong></div>
+            <div class="mini-row"><span>Largest Allocation</span><strong id="largestAllocation">None</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="broker-toolbar">
+        <button class="btn broker-search-btn" type="button" id="openInstrumentSearch"><i class="fa-solid fa-magnifying-glass-chart"></i>Search instrument</button>
+        <p id="portfolioStatus" style="margin:0;color:var(--muted)">Select an instrument from live market search, then enter investment details.</p>
+      </section>
+
+      <section class="grid-2" style="margin-top:18px">
+        <div class="card portfolio-ticket">
+          <h3>Add Holding</h3>
+          <form id="stockForm" class="form-grid">
+            <div class="two-col">
+              <input class="field" id="stockSymbol" placeholder="Selected symbol" required>
+              <input class="field" id="stockName" placeholder="Name / description">
+            </div>
+            <div class="two-col">
+              <input class="field" id="stockExchange" placeholder="Exchange" readonly>
+              <input class="field" id="stockAssetType" placeholder="Asset type" readonly>
+            </div>
+            <div class="two-col">
+              <input class="field" id="stockQty" type="number" step="any" min="0" inputmode="decimal" placeholder="Quantity" required>
+              <input class="field" id="stockBuy" type="number" step="any" min="0" inputmode="decimal" placeholder="Purchase price" required>
+            </div>
+            <div class="two-col">
+              <select class="select" id="investmentMode">
+                <option value="Lump Sum">Lump Sum</option>
+                <option value="SIP">SIP</option>
+                <option value="Previous Lump Sum">Previous Lump Sum</option>
+                <option value="Previous SIP">Previous SIP</option>
+              </select>
+              <input class="field" id="investmentDate" type="date" title="Investment start/date">
+            </div>
+            <p id="modeHelp" style="margin:0;color:var(--muted)">For lump sum, enter total quantity and purchase price. For SIP, enter total units accumulated and average buy/NAV.</p>
+            <div class="two-col" id="sipFields">
+              <input class="field" id="sipAmount" type="number" step="any" min="0" inputmode="decimal" placeholder="SIP amount, optional">
+              <select class="select" id="sipFrequency">
+                <option value="">SIP frequency</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Yearly">Yearly</option>
+              </select>
+            </div>
+            <input class="field" id="stockCurrent" type="number" step="any" min="0" inputmode="decimal" placeholder="Current price fallback, optional">
+            <button class="btn">Add Holding</button>
+            <button class="btn light" type="button" id="refreshPrices"><i class="fa-solid fa-rotate"></i>Refresh Live Prices</button>
+          </form>
+        </div>
+        <div class="card"><h3>Trading Ticket</h3><div class="mini-list"><div class="mini-row"><span>Selected Symbol</span><strong id="ticketSymbol">None</strong></div><div class="mini-row"><span>Exchange</span><strong id="ticketExchange">--</strong></div><div class="mini-row"><span>Asset Type</span><strong id="ticketType">--</strong></div><div class="mini-row"><span>Live Price</span><strong id="ticketPrice">--</strong></div></div></div>
+      </section>
+
+      <section class="grid-2" style="margin-top:18px">
+        <div class="card chart-card"><h3>Allocation</h3><canvas id="portfolioChart"></canvas></div>
+        <div class="card"><h3>Allocation by Type</h3><div class="allocation-list" id="allocationList"></div></div>
+      </section>
+
+      <section class="grid-4" id="stockGrid" style="margin-top:18px"></section>
+      <div class="table-wrap" style="margin-top:18px">
+        <table>
+          <thead><tr><th>Type</th><th>Symbol</th><th>Exchange</th><th>Investment</th><th>Qty</th><th>Avg Cost</th><th>Live Price</th><th>Market Value</th><th>P/L</th><th>Return</th></tr></thead>
+          <tbody id="stockRows"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <div class="modal-backdrop" id="instrumentModal">
+    <div class="modal search-modal">
+      <div class="modal-head">
+        <div><h2>Search Market Instruments</h2><p style="margin:6px 0 0;color:var(--muted)">Search across listed markets and choose a result to fill the trading ticket.</p></div>
+        <button class="icon-btn" id="closeInstrumentSearch"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div>
+        <input class="field" id="instrumentSearch" placeholder="Search symbol, company, forex pair, crypto, index, bond, economy">
+        <div class="market-tabs" id="marketTabs">
+          <button class="market-tab active" data-type="All">All</button>
+          <button class="market-tab" data-type="Stock">Stocks</button>
+          <button class="market-tab" data-type="Fund">Funds</button>
+          <button class="market-tab" data-type="Future">Futures</button>
+          <button class="market-tab" data-type="Forex">Forex</button>
+          <button class="market-tab" data-type="Crypto">Crypto</button>
+          <button class="market-tab" data-type="Index">Indices</button>
+          <button class="market-tab" data-type="Bond">Bonds</button>
+          <button class="market-tab" data-type="Economy">Economy</button>
+          <button class="market-tab" data-type="Option">Options</button>
+          <button class="market-tab" data-type="Commodity">Commodities</button>
+        </div>
+      </div>
+      <div class="market-result-list" id="instrumentResults"></div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/portfolio.js"></script>
+</body>
+</html>

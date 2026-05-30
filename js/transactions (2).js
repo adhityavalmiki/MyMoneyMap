@@ -1,21 +1,6 @@
 let transactions = [];
 let editingId = null;
 
-async function loadTransactions() {
-  if (!hasSupabase()) {
-    transactions = getStore("mmm-transactions", seedTransactions);
-    renderTransactions();
-    return;
-  }
-  const { data, error } = await db.from("transactions").select("*").order("date", { ascending: false });
-  if (error) {
-    toast(error.message);
-    return;
-  }
-  transactions = data || [];
-  renderTransactions();
-}
-
 function renderTransactions() {
   const body = document.getElementById("transactionRows");
   if (!body) return;
@@ -59,53 +44,34 @@ function editTransaction(id) {
   document.getElementById("txModal").classList.add("show");
 }
 
-async function deleteTransaction(id) {
-  if (hasSupabase()) {
-    const { error } = await db.from("transactions").delete().eq("id", id);
-    if (error) return toast(error.message);
-    await loadTransactions();
-  } else {
-    transactions = transactions.filter(t => t.id !== id);
-    setStore("mmm-transactions", transactions);
-    renderTransactions();
-  }
+function deleteTransaction(id) {
+  transactions = transactions.filter(t => t.id !== id);
+  setStore("mmm-transactions", transactions);
+  renderTransactions();
   toast("Transaction deleted");
 }
 
-async function saveTransaction(event) {
-  event.preventDefault();
-  const item = {
-    title: document.getElementById("tx-title").value,
-    amount: Number(document.getElementById("tx-amount").value),
-    category: document.getElementById("tx-category").value,
-    type: document.getElementById("tx-type").value,
-    date: document.getElementById("tx-date").value
-  };
-
-  if (hasSupabase()) {
-    const { data: userData } = await db.auth.getUser();
-    if (!userData.user) return toast("Please login again");
-    const response = editingId
-      ? await db.from("transactions").update(item).eq("id", editingId)
-      : await db.from("transactions").insert({ ...item, user_id: userData.user.id });
-    if (response.error) return toast(response.error.message);
-    await loadTransactions();
-  } else {
-    const localItem = { ...item, id: editingId || crypto.randomUUID() };
-    transactions = editingId ? transactions.map(t => t.id === editingId ? localItem : t) : [localItem, ...transactions];
-    setStore("mmm-transactions", transactions);
-    renderTransactions();
-  }
-
-  closeTransactionModal();
-  toast(editingId ? "Transaction updated" : "Transaction added");
-}
-
 document.addEventListener("DOMContentLoaded", () => {
+  transactions = getStore("mmm-transactions", seedTransactions);
   ["txSearch", "txCategory", "txSort"].forEach(id => document.getElementById(id)?.addEventListener("input", renderTransactions));
   document.getElementById("addTxBtn")?.addEventListener("click", openTransactionModal);
   document.getElementById("closeTxModal")?.addEventListener("click", closeTransactionModal);
   document.getElementById("exportCsv")?.addEventListener("click", () => exportCSV(transactions));
-  document.getElementById("txForm")?.addEventListener("submit", saveTransaction);
-  loadTransactions();
+  document.getElementById("txForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const item = {
+      id: editingId || crypto.randomUUID(),
+      title: document.getElementById("tx-title").value,
+      amount: Number(document.getElementById("tx-amount").value),
+      category: document.getElementById("tx-category").value,
+      type: document.getElementById("tx-type").value,
+      date: document.getElementById("tx-date").value
+    };
+    transactions = editingId ? transactions.map(t => t.id === editingId ? item : t) : [item, ...transactions];
+    setStore("mmm-transactions", transactions);
+    closeTransactionModal();
+    renderTransactions();
+    toast(editingId ? "Transaction updated" : "Transaction added");
+  });
+  renderTransactions();
 });

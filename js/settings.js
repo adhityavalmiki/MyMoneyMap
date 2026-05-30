@@ -1,5 +1,41 @@
-function fillSettingsForm() {
-  const settings = getSettings();
+let loadedProfile = null;
+
+async function loadSettingsProfile() {
+  if (!hasSupabase()) return getSettings();
+  const { data: userData } = await db.auth.getUser();
+  if (!userData.user) return getSettings();
+
+  const { data, error } = await db.from("profiles").select("*").eq("id", userData.user.id).maybeSingle();
+  if (error) toast(error.message);
+
+  loadedProfile = data || {
+    id: userData.user.id,
+    name: userData.user.user_metadata?.name || userData.user.email?.split("@")[0] || "User",
+    email: userData.user.email,
+    currency: userData.user.user_metadata?.currency || "INR",
+    monthly_budget: 0,
+    savings_goal: 0
+  };
+  localStorage.setItem("mmm-profile-cache", JSON.stringify({
+    id: userData.user.id,
+    name: loadedProfile.name,
+    email: loadedProfile.email,
+    currency: loadedProfile.currency,
+    monthlyBudget: loadedProfile.monthly_budget || 0,
+    savingsGoal: loadedProfile.savings_goal || 0
+  }));
+  return {
+    ...defaultSettings,
+    name: loadedProfile.name,
+    email: loadedProfile.email,
+    currency: loadedProfile.currency,
+    monthlyBudget: loadedProfile.monthly_budget || 0,
+    savingsGoal: loadedProfile.savings_goal || 0
+  };
+}
+
+async function fillSettingsForm() {
+  const settings = await loadSettingsProfile();
   document.getElementById("settingName").value = settings.name;
   document.getElementById("settingEmail").value = settings.email;
   document.getElementById("settingCurrency").value = settings.currency;
@@ -38,37 +74,63 @@ function updateSettingsPreview() {
   document.getElementById("goalPreview").textContent = `Goal: ${formatMoney(settings.savingsGoal, settings.currency)}`;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  fillSettingsForm();
+async function saveProfile() {
+  const settings = readSettingsForm();
+  if (hasSupabase()) {
+    const { data: userData } = await db.auth.getUser();
+    if (!userData.user) return toast("Please login again");
+    const { error } = await db.from("profiles").upsert({
+      id: userData.user.id,
+      name: settings.name,
+      email: userData.user.email,
+      currency: settings.currency,
+      monthly_budget: settings.monthlyBudget,
+      savings_goal: settings.savingsGoal
+    });
+    if (error) return toast(error.message);
+    localStorage.setItem("mmm-profile-cache", JSON.stringify({
+      id: userData.user.id,
+      name: settings.name,
+      email: userData.user.email,
+      currency: settings.currency,
+      monthlyBudget: settings.monthlyBudget,
+      savingsGoal: settings.savingsGoal
+    }));
+  } else {
+    setStore("mmm-settings", settings);
+  }
+  applyProfile();
+  updateSettingsPreview();
+  toast("Settings saved");
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const apiKeyInput = document.getElementById("finnhubKey");
+  const saveKeyBtn = document.getElementById("saveApiKey");
+  if (apiKeyInput) apiKeyInput.value = localStorage.getItem("mmm-finnhub-key") || "d7u3hb9r01qvtsq0bel0d7u3hb9r01qvtsq0belg";
+  if (saveKeyBtn) {
+    saveKeyBtn.addEventListener("click", () => {
+      localStorage.setItem("mmm-finnhub-key", apiKeyInput.value.trim());
+      toast("Finnhub API key saved");
+    });
+  }
+
+  await fillSettingsForm();
   document.querySelectorAll("#settingsForm input, #settingsForm select, #monthlyBudget, #savingsGoal").forEach((field) => {
     field.addEventListener("input", updateSettingsPreview);
   });
 
-  document.getElementById("settingsForm").addEventListener("submit", (event) => {
+  document.getElementById("settingsForm").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const settings = readSettingsForm();
-    setStore("mmm-settings", settings);
-    const user = currentUser();
-    if (user) {
-      const users = JSON.parse(localStorage.getItem("mmm-users") || "[]");
-      const updatedUsers = users.map((item) => normalizeEmail(item.email) === normalizeEmail(user.email) ? { ...item, name: settings.name, currency: settings.currency } : item);
-      localStorage.setItem("mmm-users", JSON.stringify(updatedUsers));
-      localStorage.setItem("mmm-current-user", JSON.stringify({ name: settings.name, email: user.email }));
-    }
-    applyProfile();
-    updateSettingsPreview();
-    toast("Settings saved");
+    await saveProfile();
   });
 
   document.querySelectorAll(".switch input, #monthlyBudget, #savingsGoal").forEach((field) => {
-    field.addEventListener("change", () => {
-      setStore("mmm-settings", readSettingsForm());
-      updateSettingsPreview();
-    });
+    field.addEventListener("change", saveProfile);
   });
 
   document.getElementById("downloadSettings").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(getSettings(), null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(readSettingsForm(), null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -77,16 +139,23 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("mmm-current-user");
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    if (hasSupabase()) await db.auth.signOut();
+    localStorage.removeItem("mmm-profile-cache");
     toast("Logged out");
     setTimeout(() => location.href = "login.html", 500);
   });
 
-  document.getElementById("resetAllData").addEventListener("click", () => {
+  document.getElementById("resetAllData").addEventListener("click", async () => {
     if (!confirm("Reset all MyMoneyMap data for this logged-in user?")) return;
-    ["mmm-transactions", "mmm-stocks", "mmm-subscriptions", "mmm-settings"].forEach((key) => localStorage.removeItem(storageKey(key)));
-    toast("Your local data was reset");
+    if (hasSupabase()) {
+      await db.from("transactions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await db.from("subscriptions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await db.from("portfolio").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    } else {
+      ["mmm-transactions", "mmm-stocks", "mmm-subscriptions", "mmm-settings"].forEach((key) => localStorage.removeItem(storageKey(key)));
+    }
+    toast("Your data was reset");
     setTimeout(() => location.href = "dashboard.html", 700);
   });
 });

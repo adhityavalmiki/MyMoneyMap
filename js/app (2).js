@@ -1,6 +1,6 @@
 const defaultSettings = {
-  name: "User",
-  email: "",
+  name: "Adhitya Valmiki",
+  email: "adhitya@mymoneymap.dev",
   currency: "INR",
   monthlyBudget: 0,
   savingsGoal: 0,
@@ -15,72 +15,6 @@ const defaultSettings = {
 const seedTransactions = [];
 const seedStocks = [];
 const seedSubscriptions = [];
-const protectedPages = ["dashboard.html", "transactions.html", "portfolio.html", "subscriptions.html", "emi.html", "settings.html"];
-const scopedKeys = ["mmm-transactions", "mmm-stocks", "mmm-subscriptions", "mmm-settings"];
-
-function currentUser() {
-  return JSON.parse(localStorage.getItem("mmm-profile-cache") || "null");
-}
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
-}
-
-function hasSupabase() {
-  return typeof db !== "undefined";
-}
-
-function storageKey(key) {
-  const user = currentUser();
-  if (!user || !scopedKeys.includes(key)) return key;
-  return `mmm:${normalizeEmail(user.email)}:${key.replace("mmm-", "")}`;
-}
-
-async function getSupabaseUser() {
-  if (!hasSupabase()) return null;
-  const { data, error } = await db.auth.getUser();
-  if (error || !data.user) return null;
-  const user = data.user;
-  const profile = await loadProfile(user);
-  const cached = {
-    id: user.id,
-    email: user.email,
-    name: profile?.name || user.user_metadata?.name || user.email?.split("@")[0] || "User",
-    currency: profile?.currency || user.user_metadata?.currency || "INR",
-    monthlyBudget: profile?.monthly_budget || 0,
-    savingsGoal: profile?.savings_goal || 0
-  };
-  localStorage.setItem("mmm-profile-cache", JSON.stringify(cached));
-  return cached;
-}
-
-async function loadProfile(user) {
-  if (!hasSupabase() || !user) return null;
-  const { data, error } = await db.from("profiles").select("*").eq("id", user.id).maybeSingle();
-  if (!error && data) return data;
-
-  const profile = {
-    id: user.id,
-    name: user.user_metadata?.name || user.email?.split("@")[0] || "User",
-    email: user.email,
-    currency: user.user_metadata?.currency || "INR",
-    monthly_budget: 0,
-    savings_goal: 0
-  };
-  await db.from("profiles").insert(profile);
-  return profile;
-}
-
-async function requireAuth() {
-  const page = location.pathname.split("/").pop() || "index.html";
-  if (!protectedPages.includes(page)) return true;
-  const user = await getSupabaseUser();
-  if (!user) {
-    location.href = `login.html?next=${encodeURIComponent(page)}`;
-    return false;
-  }
-  return true;
-}
 
 function removeOldDemoData() {
   const demoSets = {
@@ -97,32 +31,18 @@ function removeOldDemoData() {
 }
 
 function getStore(key, fallback) {
-  const finalKey = storageKey(key);
-  const existing = localStorage.getItem(finalKey);
+  const existing = localStorage.getItem(key);
   if (existing) return JSON.parse(existing);
-  localStorage.setItem(finalKey, JSON.stringify(fallback));
+  localStorage.setItem(key, JSON.stringify(fallback));
   return fallback;
 }
 
 function setStore(key, value) {
-  localStorage.setItem(storageKey(key), JSON.stringify(value));
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
 function getSettings() {
-  const user = currentUser();
-  const base = {
-    ...defaultSettings,
-    name: user?.name || defaultSettings.name,
-    email: user?.email || defaultSettings.email
-  };
-  const saved = hasSupabase() ? {} : getStore("mmm-settings", base);
-  return {
-    ...base,
-    ...saved,
-    currency: user?.currency || saved.currency || base.currency,
-    monthlyBudget: user?.monthlyBudget ?? saved.monthlyBudget ?? base.monthlyBudget,
-    savingsGoal: user?.savingsGoal ?? saved.savingsGoal ?? base.savingsGoal
-  };
+  return { ...defaultSettings, ...getStore("mmm-settings", defaultSettings) };
 }
 
 function formatMoney(value, currency = getSettings().currency) {
@@ -285,9 +205,7 @@ function makeBarChart(id, labels, data) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const allowed = await requireAuth();
-  if (!allowed) return;
+document.addEventListener("DOMContentLoaded", () => {
   removeOldDemoData();
   initLoader();
   initTheme();
