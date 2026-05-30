@@ -25,6 +25,30 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${location.origin}${currentPath}`;
   }
 
+  async function prepareRecoverySession() {
+    if (!resetPassword || !hasSupabase()) return;
+    const query = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+
+    if (query.get("code")) {
+      const { error } = await db.auth.exchangeCodeForSession(query.get("code"));
+      if (error) toast(error.message);
+      return;
+    }
+
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token");
+    if (accessToken && refreshToken) {
+      const { error } = await db.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+      if (error) toast(error.message);
+    }
+  }
+
+  prepareRecoverySession();
+
   login?.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!hasSupabase()) return toast("Supabase is not connected");
@@ -135,6 +159,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const button = e.target.querySelector("button[type='submit']");
     setLoading(button, "Updating...");
+    const { data: sessionData } = await db.auth.getSession();
+    if (!sessionData.session) {
+      clearLoading(button);
+      toast("Reset session expired. Please request a new reset link.");
+      return;
+    }
     const { error } = await db.auth.updateUser({ password: newPassword });
 
     if (error) {
